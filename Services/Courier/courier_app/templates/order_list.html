@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% for order in order_list %}
+    <div>
+        <p>{{ order.address_from }}</p>
+        <p>{{ order.address_to }}</p>
+        <p>{{ order.weight }}</p>
+        <p>{{ order.comment }}</p>
+        <a href="{% url 'take_order' id=order.id %}">Выполнить</a>
+    </div>
+{% endfor %}
+{% endblock %}

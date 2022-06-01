@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <p>{{ order.address_to }}</p>
+        <p>{{ order.address_from }}</p>
+        <p>{{ order.weight }}</p>
+        <p>{{ order.comment }}</p>
+    <a href="{% url 'order_delivered' id=order.id %}">Доставлено</a>
+    </div>
+{% endblock %}
