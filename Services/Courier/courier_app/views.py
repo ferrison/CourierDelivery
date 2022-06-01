@@ -28,6 +28,7 @@ class OrderTakeView(View):
     def get(self, request, id):
         order = Order.objects.get(id=id)
         order.status = 'in_process'
+        order.courier = request.user
         order.save()
         return redirect('order', id=id)
 

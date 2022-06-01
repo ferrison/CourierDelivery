@@ -27,10 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+DB_PREFIX = 'order_app_'
+
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django_database_prefix',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
