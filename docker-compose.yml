@@ -44,3 +44,16 @@ services:
     depends_on:
       - db
       - rabbitmq
+
+  courier_celery_worker:
+    build: Services/Courier
+    command: celery -A Courier worker -l INFO
+    volumes:
+      - ./Services/Courier:/code
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
+      - rabbitmq

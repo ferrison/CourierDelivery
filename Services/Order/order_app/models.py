@@ -10,13 +10,17 @@ class Client(AbstractUser):
 
 class Order(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client = models.ForeignKey('Client', on_delete=models.DO_NOTHING, null=True)
     status = models.CharField(choices=(("published", "published"),
                                        ("accepted", "accepted"),
                                        ("declined", "declined"),
                                        ("delivered", "delivered")),
-                              max_length=20)
+                              max_length=20,
+                              default="published")
     address_from = models.CharField(max_length=500)
     address_to = models.CharField(max_length=500)
+    weight = models.FloatField()
+    comment = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
