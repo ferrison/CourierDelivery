@@ -7,5 +7,5 @@ urlpatterns = [
     path('order/', views.OrderListView.as_view(), name='order_list'),
     path('order/take/<uuid:id>', views.OrderTakeView.as_view(), name='take_order'),
     path('order/delivered/<uuid:id>', views.OrderDeliveredView.as_view(), name='order_delivered'),
-    path('order/<uuid:id>', views.OrderView.as_view(), name='order'),
+    path('order/<uuid:id>', views.OrderView.as_view(), name='order')
 ]

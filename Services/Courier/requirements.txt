@@ -3,3 +3,5 @@ psycopg2>=2.8
 celery
 requests
 django-database-prefix
+gunicorn
+django-cachalot

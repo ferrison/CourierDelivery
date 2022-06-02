@@ -1,22 +1,58 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=7ddb8fa7-f594-479f-965e-8127a799c4b6&lang=ru_RU"
+            type="text/javascript"></script>
+    <script type="text/javascript">
+
+        ymaps.ready(init);
+
+        function init() {
+            const websocket = new WebSocket("ws://localhost:8005/client");
+
+            websocket.onopen = () => {
+                websocket.send("{{ order.id }}");
+            };
+
+            myMap = new ymaps.Map('map', {
+                center: [54.787496, 32.049028],
+                zoom: 12,
+                controls: []
+            })
+            courier = new ymaps.Placemark([0, 0], {
+            }, {
+                preset: 'islands#redCircleIcon'
+            })
+            myMap.geoObjects
+                .add(courier)
+
+            websocket.onmessage = ({data}) => {
+                const event = JSON.parse(data);
+                console.log([event.latitude, event.longitude]);
+                courier.geometry.setCoordinates([event.latitude, event.longitude]);
+            };
+
+        }
+    </script>
+{% endblock %}
+
 {% block content %}
     <div class="conatiner" style="height: 700px">
 
         <div class="row align-items-center" style="height: 700px">
             <div class="col-md-4">
-                    <div class="form-row">
-                        <p>Откуда: {{ order.address_from }}</p>
-                        <p>Куда: {{ order.address_to }}</p>
-                        <p>Вес: {{ order.weight }}</p>
-                        <p>Цена: {{ order.price }}</p>
-                        <p>Комментарий: {{ order.comment }}</p>
-                    </div>
+                <div class="form-row">
+                    <p>Откуда: {{ order.address_from }}</p>
+                    <p>Куда: {{ order.address_to }}</p>
+                    <p>Вес: {{ order.weight }}</p>
+                    <p>Цена: {{ order.price }}</p>
+                    <p>Комментарий: {{ order.comment }}</p>
+                </div>
             </div>
             <div class="col-md-8">
-            <img src="{% static 'map_tracking.png' %}" class="img-fluid">
-        </div>
+                <div id="map" style="width: 1200px; height: 800px"></div>
+            </div>
         </div>
 
     </div>

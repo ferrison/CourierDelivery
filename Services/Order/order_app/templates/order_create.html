@@ -1,30 +1,114 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head %}
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=7ddb8fa7-f594-479f-965e-8127a799c4b6&lang=ru_RU"
+            type="text/javascript"></script>
+    <script type="text/javascript">
+
+        ymaps.ready(init);
+
+        function init() {
+            // Стоимость за километр.
+            var DELIVERY_TARIFF = 20,
+                // Минимальная стоимость.
+                MINIMUM_COST = 500,
+                myMap = new ymaps.Map('map', {
+                    center: [54.787496, 32.049028],
+                    zoom: 9,
+                    controls: []
+                }),
+                // Создадим панель маршрутизации.
+                routePanelControl = new ymaps.control.RoutePanel({
+                    options: {
+                        // Добавим заголовок панели.
+                        showHeader: true,
+                        title: 'Расчёт доставки'
+                    }
+                }),
+                zoomControl = new ymaps.control.ZoomControl({
+                    options: {
+                        size: 'small',
+                        float: 'none',
+                        position: {
+                            bottom: 145,
+                            right: 10
+                        }
+                    }
+                });
+            // Пользователь сможет построить только автомобильный маршрут.
+            routePanelControl.routePanel.options.set({
+                types: {auto: true}
+            });
+
+            // Если вы хотите задать неизменяемую точку "откуда", раскомментируйте код ниже.
+            /*routePanelControl.routePanel.state.set({
+                fromEnabled: false,
+                from: 'Москва, Льва Толстого 16'
+             });*/
+
+            myMap.controls.add(routePanelControl).add(zoomControl);
+
+            // Получим ссылку на маршрут.
+            routePanelControl.routePanel.getRouteAsync().then(function (route) {
+
+                // Зададим максимально допустимое число маршрутов, возвращаемых мультимаршрутизатором.
+                route.model.setParams({results: 1}, true);
+
+                // Повесим обработчик на событие построения маршрута.
+                route.model.events.add('requestsuccess', function () {
+
+                    var activeRoute = route.getActiveRoute();
+                    if (activeRoute) {
+                        // Получим протяженность маршрута.
+                        var length = route.getActiveRoute().properties.get("distance"),
+                            // Вычислим стоимость доставки.
+                            price = calculate(Math.round(length.value / 1000)),
+                            // Создадим макет содержимого балуна маршрута.
+                            balloonContentLayout = ymaps.templateLayoutFactory.createClass(
+                                '<span>Расстояние: ' + length.text + '.</span><br/>' +
+                                '<span style="font-weight: bold; font-style: italic">Стоимость доставки: ' + price + ' р.</span>');
+                        // Зададим этот макет для содержимого балуна.
+                        route.options.set('routeBalloonContentLayout', balloonContentLayout);
+                        // Откроем балун.
+                        activeRoute.balloon.open();
+                    }
+                });
+
+            });
+
+            // Функция, вычисляющая стоимость доставки.
+            function calculate(routeLength) {
+                return Math.max(routeLength * DELIVERY_TARIFF, MINIMUM_COST);
+            }
+        }
+    </script>
+{% endblock %}
+
 {% block content %}
     <div class="conatiner" style="height: 700px">
 
-        <div class="row align-items-center" style="height: 700px">
+        <div class="row align-items-center g-3" style="height: 700px">
             <div class="col-md-4">
                 <form action="" method="post">
                     {% csrf_token %}
-                    <div class="form-row">
-                        <input type="text" name="address_to" class="form-control" placeholder="Куда">
-                        <br>
-                        <input type="text" name="address_from" class="form-control" placeholder="Откуда">
-                        <br>
-                        <input type="number" name="weight" class="form-control" placeholder="Вес" step="any">
-                        <br>
-                        <input type="number" name="price" class="form-control" placeholder="Цена">
-                        <br>
-                        <textarea name="comment" class="form-control" placeholder="Комментарий к заказу"></textarea>
-                        <br>
-                        <button class="btn btn-primary btn-size" type="submit">Разместить</button>
+                    <input type="text" name="address_to" class="form-control" placeholder="Куда">
+                    <br>
+                    <input type="text" name="address_from" class="form-control" placeholder="Откуда">
+                    <br>
+                    <input type="number" name="weight" class="form-control" placeholder="Вес" step="any">
+                    <br>
+                    <input type="number" name="price" class="form-control" placeholder="Цена">
+                    <br>
+                    <textarea name="comment" class="form-control" placeholder="Комментарий к заказу"></textarea>
+                    <br>
+                    <button class="btn btn-primary btn-size" type="submit">Разместить</button>
                 </form>
             </div>
+            <div class="col-md-7">
+                <div id="map" style="width: 1200px; height: 800px"></div>
+            </div>
         </div>
-        <div class="col-md-8">
-            <img src="{% static 'map.png' %}" class="img-fluid">
-        </div>
+
     </div>
 {% endblock %}

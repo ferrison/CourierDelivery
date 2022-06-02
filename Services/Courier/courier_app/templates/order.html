@@ -1,11 +1,60 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=7ddb8fa7-f594-479f-965e-8127a799c4b6&lang=ru_RU"
+            type="text/javascript"></script>
+    <script type="text/javascript">
+        ymaps.ready(init);
+
+        function init() {
+            myMap = new ymaps.Map('map', {
+                center: [54.787496, 32.049028],
+                zoom: 12,
+                controls: []
+            })
+
+            const websocket = new WebSocket("ws://localhost:8005/courier");
+
+            websocket.onopen = () => {
+                websocket.send("{{ order.id }}");
+            }
+
+            function sendPosition(position) {
+                websocket.send(JSON.stringify({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                }))
+                console.log(position.coords.latitude, position.coords.longitude);
+            }
+
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(sendPosition);
+            }, 100)
+        }
+    </script>
+{% endblock %}
 
 {% block content %}
-    <div>
-        <p>{{ order.address_to }}</p>
-        <p>{{ order.address_from }}</p>
-        <p>{{ order.weight }}</p>
-        <p>{{ order.comment }}</p>
-    <a href="{% url 'order_delivered' id=order.id %}">Доставлено</a>
+    <div class="conatiner" style="height: 700px">
+
+        <div class="row align-items-center" style="height: 700px">
+            <div class="col-md-4">
+                <div class="form-row">
+                    <p>Откуда: {{ order.address_from }}</p>
+                    <p>Куда: {{ order.address_to }}</p>
+                    <p>Вес: {{ order.weight }}</p>
+                    <p>Цена: {{ order.price }}</p>
+                    {% if order.comment %}
+                        <p>Комментарий: {{ order.comment }}</p>
+                    {% endif %}
+                </div>
+                <a href="{% url 'order_delivered' id=order.id %}" class="btn btn-primary btn-size" type="submit">Подтвердить доставку</a>
+            </div>
+            <div class="col-md-8">
+                <div id="map" style="width: 1200px; height: 800px"></div>
+            </div>
+        </div>
+
     </div>
 {% endblock %}

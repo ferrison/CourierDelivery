@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 # Create your views here.
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
@@ -16,6 +17,9 @@ class OrderCreateView(generic.CreateView):
     template_name = 'order_create.html'
     model = models.Order
     form_class = forms.OrderForm
+
+    def get_success_url(self):
+        return reverse('order_list_accepted')
 
     def form_valid(self, form):
         form.instance.client = self.request.user
@@ -34,13 +38,32 @@ class OrderDetailView(generic.DetailView):
 
 
 class ActiveOrderListView(generic.ListView):
-    template_name = 'order_list.html'
+    template_name = 'order_list_accepted.html'
     model = Order
     context_object_name = 'order_list'
 
     def get_queryset(self):
-        print(self.request.user)
         return Order.objects.filter(Q(status='published') | Q(status='accepted'), client=self.request.user)
+
+
+class HistoryOrderListView(generic.ListView):
+    template_name = 'order_list_history.html'
+    model = Order
+    context_object_name = 'order_list'
+
+    def get_queryset(self):
+        return Order.objects.filter(status='delivered', client=self.request.user)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class OrderAcceptedView(View):
+    def post(self, request):
+        order = Order.objects.get(id=request.POST['id'])
+        order.status = 'accepted'
+        order.save()
+        requests.post('http://notificator:8080/notification', data={"uuid": order.client.id,
+                                                                  "message": f"Заказ был взят курьером"})
+        return HttpResponse()
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -49,4 +72,6 @@ class OrderDeliveredView(View):
         order = Order.objects.get(id=request.POST['id'])
         order.status = 'delivered'
         order.save()
+        requests.post('http://notificator:8080/notification', data={"uuid": order.client.id,
+                                                                  "message": f"Заказ был выполнен"})
         return HttpResponse()

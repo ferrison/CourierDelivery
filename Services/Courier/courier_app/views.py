@@ -30,6 +30,7 @@ class OrderTakeView(View):
         order.status = 'in_process'
         order.courier = request.user
         order.save()
+        requests.post('http://order:8000/order/accepted', {"id": id})
         return redirect('order', id=id)
 
 
@@ -49,7 +50,7 @@ class OrderView(generic.DetailView):
 
 
 class OrderListView(generic.ListView):
-    template_name = 'order_list.html'
+    template_name = 'order_list_accepted.html'
     model = Order
     context_object_name = 'order_list'
 

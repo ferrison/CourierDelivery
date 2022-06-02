@@ -6,7 +6,7 @@ from django.db import models
 
 class Courier(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    status = models.CharField(choices=(('free', 'free'), ('working', 'working')), max_length=10, default='free')
+    status = models.CharField(choices=(('free', 'free'), ('working', 'working')), max_length=10, default='free', verbose_name='Статус')
     rating_sum = models.IntegerField(default=0)
     rating_quantity = models.IntegerField(default=0)
 
@@ -27,3 +27,7 @@ class Order(models.Model):
     weight = models.FloatField()
     comment = models.TextField(blank=True)
     courier = models.ForeignKey('Courier', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'

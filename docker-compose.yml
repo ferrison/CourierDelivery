@@ -30,9 +30,13 @@ services:
       - db
       - rabbitmq
 
+  redis:
+    image: redis
+
   courier:
     build: Services/Courier
     command: python manage.py runserver 0.0.0.0:8001
+#    command: gunicorn -w 12 -b 0.0.0.0:8001 Courier.wsgi
     volumes:
       - ./Services/Courier:/code
     ports:
@@ -45,15 +49,30 @@ services:
       - db
       - rabbitmq
 
-  courier_celery_worker:
-    build: Services/Courier
-    command: celery -A Courier worker -l INFO
+#  courier_celery_worker:
+#    build: Services/Courier
+#    command: celery -A Courier worker -l INFO
+#    volumes:
+#      - ./Services/Courier:/code
+#    environment:
+#      - POSTGRES_NAME=postgres
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=postgres
+#    depends_on:
+#      - db
+#      - rabbitmq
+
+  location_exchanger:
+    build: Services/Location Exchanger
+    command: python3 main.py
     volumes:
-      - ./Services/Courier:/code
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    depends_on:
-      - db
-      - rabbitmq
+      - ./Services/Location Exchanger:/code
+    ports:
+      - "8005:8080"
+  notificator:
+    build: Services/Notificator
+    command: python3 main.py
+    volumes:
+      - ./Services/Notificator:/code
+    ports:
+      - "8010:8080"

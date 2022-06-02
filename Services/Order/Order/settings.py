@@ -92,6 +92,8 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
+SESSION_COOKIE_NAME = 'sessionid_order'
+
 AUTH_USER_MODEL = 'order_app.Client'
 
 AUTH_PASSWORD_VALIDATORS = [
