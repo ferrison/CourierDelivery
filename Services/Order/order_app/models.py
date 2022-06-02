@@ -19,8 +19,9 @@ class Order(models.Model):
                               default="published")
     address_from = models.CharField(max_length=500)
     address_to = models.CharField(max_length=500)
-    weight = models.FloatField()
-    comment = models.TextField()
+    price = models.IntegerField(default=0)
+    weight = models.FloatField(default=0)
+    comment = models.TextField(default="", blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

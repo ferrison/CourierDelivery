@@ -1,9 +1,30 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <form action="" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
-</form>
+    <div class="conatiner" style="height: 700px">
+
+        <div class="row align-items-center" style="height: 700px">
+            <div class="col-md-4">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <input type="text" name="address_to" class="form-control" placeholder="Куда">
+                        <br>
+                        <input type="text" name="address_from" class="form-control" placeholder="Откуда">
+                        <br>
+                        <input type="number" name="weight" class="form-control" placeholder="Вес" step="any">
+                        <br>
+                        <input type="number" name="price" class="form-control" placeholder="Цена">
+                        <br>
+                        <textarea name="comment" class="form-control" placeholder="Комментарий к заказу"></textarea>
+                        <br>
+                        <button class="btn btn-primary btn-size" type="submit">Разместить</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <img src="{% static 'map.png' %}" class="img-fluid">
+        </div>
+    </div>
 {% endblock %}

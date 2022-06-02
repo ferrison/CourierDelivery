@@ -1,4 +1,5 @@
 import requests
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -26,14 +27,20 @@ class OrderCreateView(generic.CreateView):
         return super().form_valid(form)
 
 
-class OrderListView(generic.ListView):
+class OrderDetailView(generic.DetailView):
+    template_name = 'order_detail.html'
+    model = models.Order
+    pk_url_kwarg = 'id'
+
+
+class ActiveOrderListView(generic.ListView):
     template_name = 'order_list.html'
     model = Order
     context_object_name = 'order_list'
 
     def get_queryset(self):
         print(self.request.user)
-        return Order.objects.filter(client=self.request.user)
+        return Order.objects.filter(Q(status='published') | Q(status='accepted'), client=self.request.user)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

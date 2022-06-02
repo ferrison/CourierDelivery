@@ -23,6 +23,7 @@ class Order(models.Model):
                               default='created')
     address_from = models.CharField(max_length=500)
     address_to = models.CharField(max_length=500)
+    price = models.IntegerField(default=0)
     weight = models.FloatField()
-    comment = models.TextField()
+    comment = models.TextField(blank=True)
     courier = models.ForeignKey('Courier', on_delete=models.DO_NOTHING, null=True, blank=True, default=None)

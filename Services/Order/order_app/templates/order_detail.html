@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="conatiner" style="height: 700px">
+
+        <div class="row align-items-center" style="height: 700px">
+            <div class="col-md-4">
+                    <div class="form-row">
+                        <p>Откуда: {{ order.address_from }}</p>
+                        <p>Куда: {{ order.address_to }}</p>
+                        <p>Вес: {{ order.weight }}</p>
+                        <p>Цена: {{ order.price }}</p>
+                        <p>Комментарий: {{ order.comment }}</p>
+                    </div>
+            </div>
+            <div class="col-md-8">
+            <img src="{% static 'map_tracking.png' %}" class="img-fluid">
+        </div>
+        </div>
+
+    </div>
+{% endblock %}
